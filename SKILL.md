@@ -52,37 +52,21 @@ Read [references/profiling.md](references/profiling.md) for the full 8-step proc
 
 ### Step 2: Maps Batch Search (agent-browser automated)
 
-Read [references/maps-search.md](references/maps-search.md) for detailed search techniques and troubleshooting.
+**Read [references/search-strategy.md](references/search-strategy.md) for the complete search framework.**
 
-Use agent-browser to search Google Maps with keywords derived from the profile's business tags.
+Key principles:
+- **Multi-center**: Large cities (>2M) use 4-6 search centers (e.g., Houston: Downtown, Katy, Sugar Land, The Woodlands, Baytown, Cypress)
+- **Keyword matrix**: 4-6 keywords per center (core + service + equipment + brand + scene)
+- **Pagination**: Scroll and load 3 times per search to get 20-30 results
+- **Deduplication**: Cross-center, cross-keyword deduplication
 
-**Keyword mapping** (customize per industry — these are examples):
+**Search execution**:
+1. For each center point × each keyword: open Google Maps, extract listings, paginate 3x
+2. Collect: name, phone, address, rating, review count, business type, website status, chain markers
+3. Dedup: same name + same address = duplicate
+4. Remove: permanently closed, non-target industry
 
-| Industry | Search terms |
-|-----------|-------------|
-| Auto body / collision | "auto body shop", "auto body repair", "collision repair", "collision center" |
-| Paint / coating | "paint shop", "spray booth", "auto paint shop", "powder coating" |
-| Manufacturing | "machine shop", "fabrication shop", "CNC machining", "metal fabrication" |
-| HVAC | "HVAC contractor", "heating and cooling", "air conditioning service" |
-| Dental / medical | "dental lab", "dental clinic", "medical equipment" |
-
-**Rule**: Derive search terms from the source customer's industry. The profile step (Step 1) produces `search_keywords` — use those.
-
-**Radius rules**:
-- 1 known customer → 50mi radius from their address
-- 2-3 clustered customers → geometric center + 30mi buffer
-- Multiple scattered customers → 50mi per customer, merge & dedup
-- User-specified → use user's range
-
-**Process**:
-1. Open Google Maps with each keyword + location
-2. Snapshot results, extract all candidate listings
-3. Click into each listing for details
-4. Collect: name, phone, address, rating, review count, business type, website status, chain markers
-5. Dedup: same name + same address = duplicate
-6. Remove: permanently closed, non-target industry (e.g., pure car wash)
-
-**Save to**: `prospect-data/{batch}/candidates.json`
+**Save to**: `prospect-data/{batch}/candidates-raw.txt` (raw extraction log) + `candidates.json` (deduplicated)
 
 ### Step 3: Auto-Tier Candidates
 
